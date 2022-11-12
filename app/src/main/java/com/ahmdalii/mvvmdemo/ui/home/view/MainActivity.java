@@ -3,6 +3,8 @@ package com.ahmdalii.mvvmdemo.ui.home.view;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,10 +16,15 @@ import com.ahmdalii.mvvmdemo.ui.home.repo.HomeRepoImpl;
 import com.ahmdalii.mvvmdemo.ui.home.viewmodel.HomeViewModel;
 import com.ahmdalii.mvvmdemo.ui.home.viewmodel.HomeViewModelFactory;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private HomeViewModelFactory homeViewModelFactory;
     private HomeViewModel homeViewModel;
+
+    private RecyclerView recyclerView;
+    private ProductAdapter productAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         gettingViewModelReady();
+        initProductRecyclerView();
         getProducts();
     }
 
@@ -38,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
         homeViewModel = new ViewModelProvider(this, homeViewModelFactory).get(HomeViewModel.class);
     }
 
+    private void initProductRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        productAdapter = new ProductAdapter(this);
+        recyclerView.setAdapter(productAdapter);
+    }
+
     private void getProducts() {
         homeViewModel.getProducts();
 
@@ -45,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(ProductsResponse productsResponse) {
                 Log.d("weAreFinished:", productsResponse.toString());
+                productAdapter.setDataToAdapter(productsResponse.getProducts());
             }
         });
     }
